@@ -1,17 +1,28 @@
-# salah_times
+<div align="center">
 
-A new Flutter project.
+<a src="https://github.com/wizsk/salah-times/releases/latest"><img src="./assets/icon_rounded.png" width="150"></a>
 
-## Getting Started
+# Salah Times
 
-This project is a starting point for a Flutter application.
+[![GitHub Release](https://img.shields.io/github/v/release/wizsk/salah-times?sort=semver&display_name=release)](https://github.com/wizsk/arabic_lexicons/releases/latest)
+[![Github Downloads](https://img.shields.io/github/downloads/wizsk/salah-times/total?logo=Github)](https://github.com/wizsk/arabic_lexicons/releases)
 
-A few resources to get you started if this is your first Flutter project:
+### A libre Salah Times app
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+[<img src="./assets/showcase/get-it-on-github.png"
+      alt='Get it on GitHub'
+      height="80">](https://github.com/wizsk/salah-times/releases/latest/)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+#### Salah Times will help you see salah times that's it
+
+<!-- [<img src=""  width=300>]() -->
+</div>
+
+## Verify
+
+Certificates Hash
+
+```
+SHA-256: 324fc0e3f874d505e7130846cd2c8b03de78a0ec22e0362c11324bada54c3c77
+SHA-1: 7bfafacbccbb383f219bf2c4aed819882a73eee8
+```
