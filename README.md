@@ -26,3 +26,16 @@ Certificates Hash
 SHA-256: 324fc0e3f874d505e7130846cd2c8b03de78a0ec22e0362c11324bada54c3c77
 SHA-1: 7bfafacbccbb383f219bf2c4aed819882a73eee8
 ```
+
+## Build or run
+
+```sh
+git clone https://github.com/wizsk/salah-times.git
+cd salah-times
+flutter pub get
+flutter run # flutter build apk
+```
+
+## License
+
+This project is fully open source and released under the **GPL-3.0 License**.
