@@ -15,7 +15,8 @@
 
 #### Salah Times will help you see salah times that's it
 
-<!-- [<img src=""  width=300>]() -->
+[<img src="assets/showcase/0.png"  width=300>](assets/showcase/0.png)
+[<img src="assets/showcase/1.png"  width=300>](assets/showcase/1.png)
 </div>
 
 ## Verify
