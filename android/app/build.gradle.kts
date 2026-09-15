@@ -19,7 +19,7 @@ if (hasKeystore) {
 }
 
 android {
-    namespace = "io.github.wizsk.salah_times"
+    namespace = "io.github.wizsk.salah_times_v2"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -32,15 +32,17 @@ android {
         includeInBundle = false
     }
 
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 
     defaultConfig {
-        applicationId = "io.github.wizsk.salah_times"
+        applicationId = "io.github.wizsk.salah_times_v2"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
+        // targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
@@ -64,17 +66,17 @@ android {
             }
         }
 
-
         debug {
             applicationIdSuffix = ".debug"
 
-             resValue(
-                 "string",
-                 "app_name",
-                 "Salah Times D"
-             )
+            resValue(
+                "string",
+                "app_name",
+                "Salah Times D"
+            )
         }
     }
+
 }
 
 kotlin {

@@ -1,36 +1,144 @@
-class PrayerTimings {
-  final String fajr;
-  final String sunrise;
-  final String dhuhr;
-  final String asr;
-  final String maghrib;
-  final String isha;
-  final String imsak;
-  final String midnight;
+import 'package:flutter/material.dart';
 
-  PrayerTimings({
-    required this.fajr,
-    required this.sunrise,
-    required this.dhuhr,
-    required this.asr,
-    required this.maghrib,
-    required this.isha,
-    required this.imsak,
-    required this.midnight,
+class PrayerNTI {
+  final String name;
+  final IconData icon;
+  final String time;
+  final bool notPrayer;
+
+  const PrayerNTI(this.name, this.icon, this.time, {this.notPrayer = false});
+}
+
+abstract final class _PN {
+  static const String fajr = 'Fajr';
+  static const String sunrise = 'Sunrise';
+  static const String duhur = 'Dhuhr';
+  static const String asr = 'Asr';
+  static const String magrib = 'Maghrib';
+  static const String isa = 'Isha';
+  static const String imsak = 'Imsak';
+  static const String midnight = 'Midnight';
+
+  static const IconData fjarIcon = Icons.bedtime_rounded;
+  static const IconData sunriseIcon = Icons.wb_twilight_rounded;
+  static const IconData duhurIcon = Icons.light_mode_rounded;
+  static const IconData asrIcon = Icons.wb_cloudy_rounded;
+  static const IconData magribIcon = Icons.flare_rounded;
+  static const IconData isaIcon = Icons.nightlight_rounded;
+  static const IconData midnightIcon = Icons.dark_mode_rounded;
+  static const IconData imsakIcon = Icons.alarm_rounded;
+}
+
+class PrayerHourName {
+  final int hour;
+  final int min;
+  final String name;
+
+  const PrayerHourName(this.hour, this.min, this.name);
+}
+
+enum PrayerEntry {
+  fajr(_PN.fajr, _PN.fjarIcon),
+  sunrise(_PN.sunrise, _PN.sunriseIcon, isNorPrayer: true),
+  dhuhr(_PN.duhur, _PN.duhurIcon),
+  asr(_PN.asr, _PN.asrIcon),
+  maghrib(_PN.magrib, _PN.magribIcon),
+  isha(_PN.isa, _PN.isaIcon),
+  midnight(_PN.midnight, _PN.midnightIcon, isNorPrayer: true, extra: true),
+  imsak(_PN.imsak, _PN.imsakIcon, isNorPrayer: true, extra: true);
+
+  const PrayerEntry(
+    this.name,
+    this.icon, {
+    this.isNorPrayer = false,
+    this.extra = false,
   });
 
-  factory PrayerTimings.fromJson(Map<String, dynamic> json) {
-    String clean(String raw) => raw.split(' ').first; // strip timezone offset
-    return PrayerTimings(
-      fajr: clean(json['Fajr'] ?? ''),
-      sunrise: clean(json['Sunrise'] ?? ''),
-      dhuhr: clean(json['Dhuhr'] ?? ''),
-      asr: clean(json['Asr'] ?? ''),
-      maghrib: clean(json['Maghrib'] ?? ''),
-      isha: clean(json['Isha'] ?? ''),
-      imsak: clean(json['Imsak'] ?? ''),
-      midnight: clean(json['Midnight'] ?? ''),
-    );
+  final String name;
+  final IconData icon;
+  final bool isNorPrayer;
+  final bool extra;
+
+  static const prayerTimes = [
+    fajr,
+    sunrise,
+    dhuhr,
+    asr,
+    maghrib,
+    isha,
+    midnight,
+    imsak,
+  ];
+}
+
+class PrayerTimingEntry {
+  final PrayerEntry p;
+  final DateTime time;
+
+  PrayerTimingEntry(this.p, this.time);
+
+  String get name => p.name;
+  IconData get icon => p.icon;
+  bool get isNorPrayer => p.isNorPrayer;
+  bool get extra => p.extra;
+
+  int? _min;
+
+  int get toMin {
+    return _min ??= (time.hour * 60) + time.minute;
+  }
+
+  (String, String)? _hMamPm;
+  (String, String)? _hm24h;
+
+  (String, String) fmtHMAMPM(bool use24h) {
+    if (use24h) {
+      return _hm24h ??= (
+        '${time.hour}:${time.minute.toString().padLeft(2, '0')}',
+        '',
+      );
+    }
+
+    if (_hMamPm != null) return _hMamPm!;
+
+    var h = time.hour;
+    final ampm = h >= 12 ? 'PM' : 'AM';
+    if (h > 12) h -= 12;
+    if (h == 0) h = 12;
+
+    final m = time.minute.toString().padLeft(2, '0');
+    final r = ('$h:$m', ampm);
+
+    _hMamPm = r;
+    return r;
+  }
+}
+
+class PrayerTimings {
+  final List<PrayerTimingEntry> en;
+
+  PrayerTimings(this.en);
+
+  factory PrayerTimings.fromJson(
+    Map<String, dynamic> json,
+    int year,
+    int month,
+    int day,
+  ) {
+    DateTime toTime(String s) {
+      final time = s.split(" ").first;
+      final sp = time.split(":");
+      final hour = int.parse(sp[0]);
+      final minute = int.parse(sp[1]);
+
+      return DateTime.utc(year, month, day, hour, minute).toLocal();
+    }
+
+    final en = PrayerEntry.prayerTimes.map((p) {
+      return PrayerTimingEntry(p, toTime(json[p.name]));
+    }).toList();
+
+    return PrayerTimings(en);
   }
 }
 
@@ -58,7 +166,7 @@ class HijriDate {
       monthEn: json['month']?['en'] ?? '',
       monthAr: json['month']?['ar'] ?? '',
       year: json['year'] ?? '',
-      weekday: json['weekday']?['en'] ?? '',
+      weekday: json['weekday']?['ar'] ?? '',
     );
   }
 }
@@ -76,9 +184,14 @@ class PrayerDay {
     required this.hijri,
   });
 
-  factory PrayerDay.fromJson(Map<String, dynamic> json) {
+  factory PrayerDay.fromJson(
+    Map<String, dynamic> json,
+    int year,
+    int month,
+    int day,
+  ) {
     return PrayerDay(
-      timings: PrayerTimings.fromJson(json['timings']),
+      timings: PrayerTimings.fromJson(json['timings'], year, month, day),
       readableDate: json['date']?['readable'] ?? '',
       gregorianDate: json['date']?['gregorian']?['date'] ?? '',
       hijri: HijriDate.fromJson(json['date']?['hijri'] ?? {}),
