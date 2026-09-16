@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:salah_times/main.dart';
+import 'package:salah_times/models/prayer_day.dart';
 import 'package:salah_times/models/prayer_times_modifiers.dart';
 import 'package:salah_times/services/prayer.dart';
 import 'package:salah_times/utils/toast_snack.dart';
@@ -74,6 +75,7 @@ class PrayerLocation {
 }
 
 abstract final class AppConf {
+  static const _prayerLangKey = 'lang';
   static const _latKey = 'lat';
   static const _lngKey = 'lng';
   static const _cityNameKey = 'cityName';
@@ -145,12 +147,19 @@ abstract final class AppConf {
     final sp = SharedPreferencesAsync();
 
     final cth = await sp.getString(_themeKey);
-    _theme = ThemeMode.values.firstWhere(
-      (v) => v.name == cth,
-      orElse: () => ThemeMode.system,
-    );
+    _theme = cth == null
+        ? ThemeMode.system
+        : ThemeMode.values.firstWhere(
+            (v) => v.name == cth,
+            orElse: () => ThemeMode.system,
+          );
 
     if (_theme != ThemeMode.system) notifier.notify();
+
+    final pL = await sp.getString(_prayerLangKey);
+    L.currNoSave = pL == null
+        ? L.en
+        : L.values.firstWhere((e) => e.name == pL, orElse: () => L.en);
 
     final lat = await sp.getDouble(_latKey);
     final lng = await sp.getDouble(_lngKey);
@@ -163,6 +172,11 @@ abstract final class AppConf {
         _loc = PrayerLocation(lat, lng, cityName, tz);
       } catch (_) {}
     }
+  }
+
+  static Future<void> savePrayerNameLang(L lang) async {
+    final sp = SharedPreferencesAsync();
+    await sp.setString(_prayerLangKey, lang.name);
   }
 
   static Future<void> saveLoc(PrayerLocation p) async {

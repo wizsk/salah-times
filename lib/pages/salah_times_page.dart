@@ -13,6 +13,7 @@ import 'package:salah_times/utils/theme_selector.dart';
 import 'package:salah_times/utils/utils.dart';
 import 'package:salah_times/widgets/aux_time_row.dart';
 import 'package:salah_times/widgets/dialouges.dart';
+import 'package:salah_times/widgets/lang_switcher.dart';
 import 'package:salah_times/widgets/on_timezone_chaned.dart';
 import 'package:salah_times/widgets/prayer_hero_card.dart';
 import 'package:salah_times/widgets/prayer_list_card.dart';
@@ -186,6 +187,12 @@ class _SalahTimesPageState extends State<SalahTimesPage>
               SettingsSectionSurface(
                 children: [
                   ReaderSelectionTile(
+                    icon: Icons.translate_outlined,
+                    title: 'Prayer Names Language',
+                    subtitle: 'Current: ${L.curr.name}',
+                    value: 'lang',
+                  ),
+                  ReaderSelectionTile(
                     icon: Icons.location_on_outlined,
                     title: 'Location',
                     subtitle: 'Current: ${AppConf.locTry?.city ?? '...'}',
@@ -225,6 +232,14 @@ class _SalahTimesPageState extends State<SalahTimesPage>
 
     if (!context.mounted) return;
     switch (result) {
+      case 'lang':
+        postFrame(
+          () => showLanguagePicker(context).then((_) {
+            _rebuild();
+          }),
+        );
+        break;
+
       case 'location':
         final pre = AppConf.loc.copyWith();
         await showLocationProvidorScreen(context);

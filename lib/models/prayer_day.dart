@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:salah_times/services/app_conf.dart';
+import 'package:salah_times/utils/toast_snack.dart';
 
 class PrayerNTI {
   final String name;
@@ -10,14 +12,20 @@ class PrayerNTI {
 }
 
 abstract final class _PN {
-  static const String fajr = 'Fajr';
-  static const String sunrise = 'Sunrise';
-  static const String duhur = 'Dhuhr';
-  static const String asr = 'Asr';
-  static const String magrib = 'Maghrib';
-  static const String isa = 'Isha';
-  static const String imsak = 'Imsak';
-  static const String midnight = 'Midnight';
+  static const _PrayerName fajr = _PrayerName(en: 'Fajr', bn: 'ফজর');
+  static const _PrayerName sunrise = _PrayerName(
+    en: 'Sunrise',
+    bn: 'সূর্যোদয়',
+  );
+  static const _PrayerName duhur = _PrayerName(en: 'Dhuhr', bn: 'যুহর');
+  static const _PrayerName asr = _PrayerName(en: 'Asr', bn: 'আছর');
+  static const _PrayerName magrib = _PrayerName(en: 'Maghrib', bn: 'মাগরিব');
+  static const _PrayerName isa = _PrayerName(en: 'Isha', bn: 'এশা');
+  static const _PrayerName imsak = _PrayerName(en: 'Imsak', bn: 'ইমছাক');
+  static const _PrayerName midnight = _PrayerName(
+    en: 'Midnight',
+    bn: 'মধ্যরাত',
+  );
 
   static const IconData fjarIcon = Icons.bedtime_rounded;
   static const IconData sunriseIcon = Icons.wb_twilight_rounded;
@@ -37,6 +45,38 @@ class PrayerHourName {
   const PrayerHourName(this.hour, this.min, this.name);
 }
 
+class _PrayerName {
+  final String en;
+  final String bn;
+
+  const _PrayerName({required this.en, required this.bn});
+}
+
+enum L {
+  en('English'),
+  bn('Bangla', 'বাংলা');
+
+  const L(this.name, [this.nameLn]);
+  final String name;
+  final String? nameLn;
+
+  static L _curr = bn;
+  static L get curr => _curr;
+
+  static set currNoSave(L lang) {
+    _curr = lang;
+  }
+
+  static set curr(L lang) {
+    if (_curr == lang) return;
+    _curr = lang;
+
+    AppConf.savePrayerNameLang(lang);
+
+    ToastService.show('Prayer names language: ${lang.name}');
+  }
+}
+
 enum PrayerEntry {
   fajr(_PN.fajr, _PN.fjarIcon),
   sunrise(_PN.sunrise, _PN.sunriseIcon, isNorPrayer: true),
@@ -48,16 +88,26 @@ enum PrayerEntry {
   imsak(_PN.imsak, _PN.imsakIcon, isNorPrayer: true, extra: true);
 
   const PrayerEntry(
-    this.name,
+    this._names,
     this.icon, {
     this.isNorPrayer = false,
     this.extra = false,
   });
 
-  final String name;
+  final _PrayerName _names;
   final IconData icon;
   final bool isNorPrayer;
   final bool extra;
+
+  String get name {
+    // assert(false);
+    return switch (L.curr) {
+      L.en => _names.en,
+      L.bn => _names.bn,
+    };
+  }
+
+  String get key => _names.en;
 
   static const prayerTimes = [
     fajr,
@@ -135,7 +185,7 @@ class PrayerTimings {
     }
 
     final en = PrayerEntry.prayerTimes.map((p) {
-      return PrayerTimingEntry(p, toTime(json[p.name]));
+      return PrayerTimingEntry(p, toTime(json[p.key]));
     }).toList();
 
     return PrayerTimings(en);
