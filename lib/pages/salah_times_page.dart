@@ -24,7 +24,7 @@ const int cooloff = 15;
 const maxContentWidth = BoxConstraints(maxWidth: 640);
 const int _animatePageMin = 20;
 
-const appVersion = String.fromEnvironment('APP_VERSION', defaultValue: 'N/A');
+const appVersion = String.fromEnvironment('APP_VERSION', defaultValue: '');
 
 class SalahTimesPage extends StatefulWidget {
   const SalahTimesPage({super.key});
@@ -212,7 +212,7 @@ class _SalahTimesPageState extends State<SalahTimesPage>
                   vertical: 10.0,
                 ),
                 child: Text(
-                  'App version: $appVersion',
+                  'App version: ${appVersion.isEmpty ? 'N/A' : 'v$appVersion'}',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.secondary
