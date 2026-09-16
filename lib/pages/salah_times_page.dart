@@ -101,8 +101,8 @@ class _SalahTimesPageState extends State<SalahTimesPage>
 
       final now = DateUtils.dateOnly(_now());
 
-      // final currTz = tzName(now);
-      final currTz = '';
+      final currTz = tzName(now);
+      // final currTz = '';
 
       if (!mounted) return;
       if (currTz != AppConf.loc.tz) {
@@ -315,7 +315,9 @@ class _SalahTimesPageState extends State<SalahTimesPage>
                           initialDate: today,
                           firstDate: today.subtract(Duration(days: daysFB)),
                           // lastDate: today.add(Duration(days: daysFB)),
-                          lastDate: DateTime(9999, 12, 31),
+                          lastDate: DateTime(2060, 12, 31),
+                          currentDate: today,
+                          confirmText: 'Select'
                         );
 
                         if (date == null) return;
