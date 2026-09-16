@@ -93,26 +93,31 @@ class _SalahTimesPageState extends State<SalahTimesPage>
         if (mounted) showLocationProvidorScreen(context, false);
         return;
       }
+      if (!mounted) return;
 
       _cityName = AppConf.loc.city;
-      if (mounted) {
-        setState(() {});
-      }
+      setState(() {});
 
       final now = DateUtils.dateOnly(_now());
 
       final currTz = tzName(now);
       // final currTz = '';
-
-      if (!mounted) return;
       if (currTz != AppConf.loc.tz) {
         final res = await showTimeChangedSheet(context);
-        if (res == tzChangePopupIgnoreVale) {
-          await AppConf.saveLoc(AppConf.loc.copyWith(tz: currTz));
+        if (!mounted) return;
+
+        switch (res) {
+          case TzChanePopupValue.changeLoc:
+            await showLocationProvidorScreen(context);
+            break;
+
+          case TzChanePopupValue.ignore:
+            await AppConf.saveLoc(AppConf.loc.copyWith(tz: currTz));
+            break;
+
+          default: // do nothing
         }
       }
-
-      if (!mounted) return;
 
       PDS.getData(now.month, now.year, () {
         _inited = true;
@@ -317,7 +322,7 @@ class _SalahTimesPageState extends State<SalahTimesPage>
                           // lastDate: today.add(Duration(days: daysFB)),
                           lastDate: DateTime(2060, 12, 31),
                           currentDate: today,
-                          confirmText: 'Select'
+                          confirmText: 'Select',
                         );
 
                         if (date == null) return;

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:salah_times/pages/salah_times_page.dart';
-import 'package:salah_times/utils/open_location_change_page.dart';
 import 'package:salah_times/utils/utils.dart';
 
-const tzChangePopupIgnoreVale = 'ignore';
+enum TzChanePopupValue { changeLoc, ignore, later }
 
-Future<String?> showTimeChangedSheet(BuildContext context) async {
-  return showModalBottomSheet<String?>(
+Future<TzChanePopupValue?> showTimeChangedSheet(BuildContext context) async {
+  return showModalBottomSheet<TzChanePopupValue?>(
     context: context,
     showDragHandle: true,
     isScrollControlled: true,
@@ -38,8 +37,7 @@ Future<String?> showTimeChangedSheet(BuildContext context) async {
               children: [
                 FilledButton.icon(
                   onPressed: () {
-                    Navigator.pop(context);
-                    postFrame(() => showLocationProvidorScreen(context));
+                    Navigator.pop(context, TzChanePopupValue.changeLoc);
                   },
                   icon: const Icon(Icons.location_on_outlined),
                   label: const Text('Change location'),
@@ -47,8 +45,7 @@ Future<String?> showTimeChangedSheet(BuildContext context) async {
 
                 OutlinedButton.icon(
                   onPressed: () {
-                    Navigator.pop(context);
-                    // Do nothing, remind on next open just!
+                    Navigator.pop(context, TzChanePopupValue.later);
                   },
                   icon: const Icon(Icons.notifications_none_outlined),
                   label: const Text('Remind me later'),
@@ -56,8 +53,7 @@ Future<String?> showTimeChangedSheet(BuildContext context) async {
 
                 TextButton.icon(
                   onPressed: () {
-                    Navigator.pop(context, tzChangePopupIgnoreVale);
-                    // Ignore
+                    Navigator.pop(context, TzChanePopupValue.ignore);
                   },
                   icon: const Icon(Icons.close),
                   label: const Text('Ignore'),
