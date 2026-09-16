@@ -72,7 +72,7 @@ Future<bool?> showConfirmDialog(
             ? Text(
                 message,
                 textDirection: dir,
-                style: theme.textTheme.bodyMedium?.copyWith(
+                style: theme.textTheme.bodyLarge?.copyWith(
                   color: cs.onSurfaceVariant,
                   fontFamily: fontFam,
                 ),
