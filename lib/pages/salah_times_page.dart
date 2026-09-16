@@ -81,12 +81,6 @@ class _SalahTimesPageState extends State<SalahTimesPage>
     }
   }
 
-  // int _hour = 21;
-  DateTime _now() {
-    final t = DateTime.now(); //.copyWith(hour: _hour);
-    return t;
-  }
-
   bool _inited = false;
   Future<void> __init() async {
     if (_inited) return;
@@ -139,6 +133,13 @@ class _SalahTimesPageState extends State<SalahTimesPage>
     } catch (err) {
       _onErr(err.toString());
     }
+  }
+
+  // int _minutes = 0;
+  DateTime _now() {
+    final t = DateTime.now();
+    // final t = DateTime.now().copyWith(hour: 0, minute: _minutes);
+    return t;
   }
 
   void _rebuild() {
