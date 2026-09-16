@@ -394,9 +394,9 @@ class _ManualEntryTabState extends State<_ManualEntryTab>
     final lat = double.parse(_latController.text.trim());
     final lng = double.parse(_lngController.text.trim());
 
-    var p = PrayerLocation(lat, lng, '');
-    final result = await CityService.nearestCity(p.lat, p.lng);
-    p = p.copyWith(city: result.label);
+    final result = await CityService.nearestCity(lat, lng);
+
+    final p = PrayerLocation(lat, lng, result.label, tzName());
 
     await AppConf.saveLoc(p);
     widget.onFinish();
@@ -697,7 +697,7 @@ class _GpsTabState extends State<_GpsTab> {
       pd('got gps location: >>--------- $lat,$lng -- city: ${city.label}');
 
       if (_cancelled || !mounted) return;
-      await AppConf.saveLoc(PrayerLocation(lat, lng, city.label));
+      await AppConf.saveLoc(PrayerLocation(lat, lng, city.label, tzName()));
       widget.onFinish();
     } catch (e, t) {
       setState(() {

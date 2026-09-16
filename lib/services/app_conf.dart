@@ -12,6 +12,8 @@ class PrayerLocation {
   final double lng;
   final String city;
 
+  final String tz;
+
   final String latStr;
   final String lngStr;
 
@@ -21,9 +23,10 @@ class PrayerLocation {
     this.city,
     this.latStr,
     this.lngStr,
+    this.tz,
   );
 
-  factory PrayerLocation(double lat, double lng, String city) {
+  factory PrayerLocation(double lat, double lng, String city, String tz) {
     if (lat < -90 || lat > 90) {
       throw ArgumentError.value(lat, 'lat', 'Must be between -90 and 90');
     }
@@ -41,11 +44,21 @@ class PrayerLocation {
       city,
       latStr,
       lngStr,
+      tz,
     );
   }
 
-  PrayerLocation copyWith({double? lat, double? lng, String? city}) =>
-      PrayerLocation(lat ?? this.lat, lng ?? this.lng, city ?? this.city);
+  PrayerLocation copyWith({
+    double? lat,
+    double? lng,
+    String? city,
+    String? tz,
+  }) => PrayerLocation(
+    lat ?? this.lat,
+    lng ?? this.lng,
+    city ?? this.city,
+    tz ?? this.tz,
+  );
 
   @override
   bool operator ==(Object other) =>
@@ -53,10 +66,11 @@ class PrayerLocation {
       other is PrayerLocation &&
           lat == other.lat &&
           lng == other.lng &&
-          city == other.city;
+          city == other.city &&
+          tz == other.tz;
 
   @override
-  int get hashCode => Object.hash(lat, lng, city);
+  int get hashCode => Object.hash(lat, lng, city, tz, latStr, lngStr);
 }
 
 abstract final class AppConf {
@@ -66,6 +80,7 @@ abstract final class AppConf {
   static const _themeKey = 'theme';
   static const _methodKey = 'method';
   static const _schoolKey = 'school';
+  static const _tzKey = 'timezone';
 
   static ThemeMode _theme = ThemeMode.system;
   static ThemeMode get theme => _theme;
@@ -141,19 +156,25 @@ abstract final class AppConf {
     final lng = await sp.getDouble(_lngKey);
     final cityName = await sp.getString(_cityNameKey);
 
-    if (lat != null && lng != null && cityName != null) {
-      _loc = PrayerLocation(lat, lng, cityName);
+    final tz = await sp.getString(_tzKey);
+
+    if (lat != null && lng != null && cityName != null && tz != null) {
+      try {
+        _loc = PrayerLocation(lat, lng, cityName, tz);
+      } catch (_) {}
     }
   }
 
   static Future<void> saveLoc(PrayerLocation p) async {
     if (p == _loc) return;
+
     _loc = p;
 
     final sp = SharedPreferencesAsync();
     await sp.setDouble(_latKey, p.lat);
     await sp.setDouble(_lngKey, p.lng);
     await sp.setString(_cityNameKey, p.city);
+    await sp.setString(_tzKey, p.tz);
 
     ToastService.show('New location saved: ${p.city}');
   }

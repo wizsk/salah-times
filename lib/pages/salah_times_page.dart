@@ -13,6 +13,7 @@ import 'package:salah_times/utils/theme_selector.dart';
 import 'package:salah_times/utils/utils.dart';
 import 'package:salah_times/widgets/aux_time_row.dart';
 import 'package:salah_times/widgets/dialouges.dart';
+import 'package:salah_times/widgets/on_timezone_chaned.dart';
 import 'package:salah_times/widgets/prayer_hero_card.dart';
 import 'package:salah_times/widgets/prayer_list_card.dart';
 import 'package:salah_times/widgets/prayer_modifers.dart';
@@ -83,7 +84,9 @@ class _SalahTimesPageState extends State<SalahTimesPage>
     return t;
   }
 
+  bool _inited = false;
   Future<void> __init() async {
+    if (_inited) return;
     try {
       await AppConf.load();
       if (!AppConf.hasLoc) {
@@ -97,7 +100,22 @@ class _SalahTimesPageState extends State<SalahTimesPage>
       }
 
       final now = DateUtils.dateOnly(_now());
+
+      // final currTz = tzName(now);
+      final currTz = '';
+
+      if (!mounted) return;
+      if (currTz != AppConf.loc.tz) {
+        final res = await showTimeChangedSheet(context);
+        if (res == tzChangePopupIgnoreVale) {
+          await AppConf.saveLoc(AppConf.loc.copyWith(tz: currTz));
+        }
+      }
+
+      if (!mounted) return;
+
       PDS.getData(now.month, now.year, () {
+        _inited = true;
         _rebuild();
 
         if (now.day >= 20) {
@@ -487,7 +505,7 @@ class _SalahTimesPageState extends State<SalahTimesPage>
 
     List<Widget> whenInited;
 
-    final d = !AppConf.hasLoc
+    final d = !_inited || !AppConf.hasLoc
         ? PDS.emtpy
         : PDS.getData(t.month, t.year, _rebuild, _onErr);
 

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:salah_times/services/app_conf.dart';
+import 'package:salah_times/utils/utils.dart';
 
 class City {
   final String city;
@@ -18,7 +19,7 @@ class City {
   });
 
   PrayerLocation toPrayerLocation() {
-    return PrayerLocation(lat, lng, cityAscii);
+    return PrayerLocation(lat, lng, cityAscii, tzName());
   }
 
   factory City.fromJson(Map<String, dynamic> j) => City(
