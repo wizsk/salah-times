@@ -21,7 +21,12 @@ abstract final class _PN {
   static const _PrayerName asr = _PrayerName(en: 'Asr', bn: 'আছর');
   static const _PrayerName magrib = _PrayerName(en: 'Maghrib', bn: 'মাগরিব');
   static const _PrayerName isa = _PrayerName(en: 'Isha', bn: 'এশা');
-  static const _PrayerName imsak = _PrayerName(en: 'Imsak', bn: 'ইমছাক');
+  static const _PrayerName imsak = _PrayerName(
+    en: 'Imsak',
+    bn: 'ইমছাক',
+    enInfo: 'Imsak literally means to hold back. Here, it refers to the time when you should stop eating and drinking before fasting.',
+    bnInfo: 'ইমছাক অর্থ বিরত থাকা। এখানে এটি রোজা শুরু করার আগে খাওয়া ও পান করা বন্ধ করার সময়কে বোঝায়।',
+  );
   static const _PrayerName midnight = _PrayerName(
     en: 'Midnight',
     bn: 'মধ্যরাত',
@@ -48,8 +53,15 @@ class PrayerHourName {
 class _PrayerName {
   final String en;
   final String bn;
+  final String? enInfo;
+  final String? bnInfo;
 
-  const _PrayerName({required this.en, required this.bn});
+  const _PrayerName({
+    required this.en,
+    required this.bn,
+    this.bnInfo,
+    this.enInfo,
+  });
 }
 
 enum L {
@@ -109,6 +121,13 @@ enum PrayerEntry {
 
   String get key => _names.en;
 
+  String? get info {
+    return switch (L.curr) {
+      L.en => _names.enInfo,
+      L.bn => _names.bnInfo,
+    };
+  }
+
   static const prayerTimes = [
     fajr,
     sunrise,
@@ -131,6 +150,7 @@ class PrayerTimingEntry {
   IconData get icon => p.icon;
   bool get isNorPrayer => p.isNorPrayer;
   bool get extra => p.extra;
+  String? get info => p.info;
 
   int? _min;
 

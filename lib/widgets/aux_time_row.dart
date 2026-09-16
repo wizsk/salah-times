@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:salah_times/models/prayer_day.dart';
 import 'package:salah_times/theme/app_theme.dart';
+import 'package:salah_times/widgets/dialouges.dart';
 
 /// The Imsak / Midnight row — smaller, outlined, secondary to the main
 /// prayer list since these are auxiliary markers rather than prayers.
@@ -33,6 +34,8 @@ class _AuxChip extends StatelessWidget {
   final PrayerTimingEntry en;
   final bool use24h;
 
+  static final _borderRadius = BorderRadius.circular(20);
+
   @override
   Widget build(BuildContext context) {
     final (hm, amapm) = en.fmtHMAMPM(use24h);
@@ -40,7 +43,7 @@ class _AuxChip extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    return Container(
+    final child = Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         border: Border.all(color: scheme.outlineVariant),
@@ -53,7 +56,7 @@ class _AuxChip extends StatelessWidget {
             height: 34,
             decoration: BoxDecoration(
               color: scheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: _borderRadius,
             ),
             child: Icon(en.icon, size: 18, color: scheme.onSurfaceVariant),
           ),
@@ -101,5 +104,16 @@ class _AuxChip extends StatelessWidget {
         ],
       ),
     );
+
+    final info = en.info;
+    return info == null
+        ? child
+        : InkWell(
+            borderRadius: _borderRadius,
+            child: child,
+            onTap: () {
+              showInfoDialog(context, 'Info', message: info, constraints: true);
+            },
+          );
   }
 }
