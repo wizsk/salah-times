@@ -123,8 +123,8 @@ class _SalahTimesPageState extends State<SalahTimesPage>
         _inited = true;
         _rebuild();
 
-        if (now.day >= 20) {
-          Timer(const Duration(seconds: 4), () {
+        if (now.day >= 15) {
+          Timer(const Duration(seconds: 1, milliseconds: 500), () {
             Prayer.fetchNextMonthIfNeeded(now.year, now.month);
           });
         }

@@ -167,12 +167,18 @@ abstract final class Prayer {
       month = 1;
     }
 
-    final f = await _getCacheFile(AppConf.loc, year, month);
-    if (await f.exists()) return;
-
     try {
+      final f = await _getCacheFile(AppConf.loc, year, month);
+      if (await f.exists()) {
+        pd("Alrady have fetchend next months prayer data ($month/$year)");
+        return;
+      }
+
       await fetchMonthIfNeeded(year, month);
-    } catch (_) {}
+      pd("Fetchend next months prayer data ($month/$year)");
+    } catch (e) {
+      pd("Could not fetch next month($month/$year): $e");
+    }
   }
 
   static Future<List<PrayerDay>> fetchMonthIfNeeded(int year, int month) async {
