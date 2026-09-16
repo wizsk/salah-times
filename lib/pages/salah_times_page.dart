@@ -174,9 +174,9 @@ class _SalahTimesPageState extends State<SalahTimesPage>
       constraints: maxContentWidth,
       builder: (context) {
         return SingleChildScrollView(
-          padding: scrollPaddingBottmSheet(context),
+          padding: scrollPaddingBottmSheet(context, bottomExtra: 10),
           child: Column(
-            spacing: 12,
+            spacing: 16,
             mainAxisSize: MainAxisSize.min,
             children: [
               /// Navigation
@@ -207,10 +207,7 @@ class _SalahTimesPageState extends State<SalahTimesPage>
               ),
 
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8.0,
-                  vertical: 10.0,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Text(
                   'App version: ${appVersion.isEmpty ? 'N/A' : 'v$appVersion'}',
                   textAlign: TextAlign.center,
