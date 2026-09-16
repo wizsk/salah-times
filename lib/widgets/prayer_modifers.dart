@@ -146,6 +146,7 @@ class _PrayerMethodSheetState extends State<_PrayerMethodSheet> {
                             ? null
                             : () {
                                 _reset();
+                                Navigator.of(context).pop();
                               },
                         visualDensity: VisualDensity.compact,
                       ),
