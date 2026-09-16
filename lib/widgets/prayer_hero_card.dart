@@ -13,9 +13,13 @@ class PrayerHeroCard extends StatelessWidget {
   static String _countdownLabel(Duration d) {
     final h = d.inHours;
     final m = d.inMinutes % 60;
-    // if (m == 0) return 'under a minute';
-    if (m == 0) return 'under 1m';
+
+    if (m == 0 && h == 0) return 'under 1m';
+
+    if (h > 0 && m == 0) return 'in ${h}h';
+
     if (h > 0) return 'in ${h}h ${m}m';
+
     return 'in ${m}m';
   }
 
