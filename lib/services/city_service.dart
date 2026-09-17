@@ -50,8 +50,6 @@ class CityService {
     _wait.complete();
   }
 
-  // ── Search ────────────────────────────────────────────────────────────────
-
   /// Returns up to [limit] cities whose ASCII name contains [query]
   /// (case-insensitive), sorted alphabetically.
   static Future<List<City>> search(String query, {int limit = 20}) async {
@@ -61,26 +59,39 @@ class CityService {
     if (_initState.isIniting) await _wait.future;
 
     final q = query.trim().toLowerCase();
-    final results =
-        _cities!
-            .where(
-              (c) =>
-                  c.cityAscii.toLowerCase().contains(q) ||
-                  c.city.toLowerCase().contains(q) ||
-                  c.country.toLowerCase().contains(q),
-            )
-            .toList()
-          ..sort((a, b) {
-            // Exact prefix matches first
-            final aStarts = a.cityAscii.toLowerCase().startsWith(q) ? 0 : 1;
-            final bStarts = b.cityAscii.toLowerCase().startsWith(q) ? 0 : 1;
-            if (aStarts != bStarts) return aStarts - bStarts;
-            return a.cityAscii.compareTo(b.cityAscii);
-          });
-    return results.take(limit).toList();
-  }
 
-  // ── Nearest city ──────────────────────────────────────────────────────────
+    List<({int proiorty, int idx, City c})> matches = [];
+    for (final c in _cities!) {
+      var idx = c.cityNorm.indexOf(q);
+      if (idx != -1) {
+        matches.add((c: c, idx: idx, proiorty: 1));
+        continue;
+      }
+
+      idx = c.countryNorm.indexOf(q);
+      if (idx != -1) {
+        matches.add((c: c, idx: idx, proiorty: 0));
+        continue;
+      }
+    }
+
+    if (matches.isEmpty) return const [];
+
+    matches.sort((a, b) {
+      if (a.idx == b.idx && b.proiorty == a.proiorty) {
+        return a.c.city.compareTo(b.c.city);
+      }
+
+      final c = a.idx.compareTo(b.idx);
+      if (b.proiorty != a.proiorty) {
+        final r = b.proiorty.compareTo(a.proiorty);
+        return r.compareTo(c);
+      }
+      return c;
+    });
+
+    return matches.take(limit).map(((a) => a.c)).toList();
+  }
 
   /// Threshold (km) beyond which we prepend "near" to the city name.
   static const double nearThresholdKm = 10.0;
@@ -116,7 +127,7 @@ class CityService {
     }
 
     final isNear = minDist > nearThresholdKm;
-    final label = isNear ? 'near ${nearest.cityAscii}' : nearest.cityAscii;
+    final label = isNear ? 'near ${nearest.city}' : nearest.city;
 
     return (label: label, isNear: isNear);
   }

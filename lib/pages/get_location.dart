@@ -277,7 +277,7 @@ class _CityTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      city.cityAscii,
+                      city.city,
                       style: textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: scheme.onSurface,
@@ -302,9 +302,7 @@ class _CityTile extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
 // Manual entry tab
-// ─────────────────────────────────────────────────────────────
 
 class _ManualEntryTab extends StatefulWidget {
   const _ManualEntryTab({required this.onFinish});

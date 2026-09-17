@@ -4,31 +4,39 @@ import 'package:salah_times/services/app_conf.dart';
 import 'package:salah_times/utils/utils.dart';
 
 class City {
+  final String cityNorm;
   final String city;
-  final String cityAscii;
   final double lat;
   final double lng;
   final String country;
+  final String countryNorm;
 
   const City({
-    required this.city,
-    required this.cityAscii,
     required this.lat,
     required this.lng,
+    required this.city,
     required this.country,
+    required this.cityNorm,
+    required this.countryNorm,
   });
 
   PrayerLocation toPrayerLocation() {
-    return PrayerLocation(lat, lng, cityAscii, tzName());
+    return PrayerLocation(lat, lng, city, tzName());
   }
 
-  factory City.fromJson(Map<String, dynamic> j) => City(
-    city: j['city'] as String,
-    cityAscii: j['city_ascii'] as String? ?? j['city'] as String,
-    lat: (j['lat'] as num).toDouble(),
-    lng: (j['lng'] as num).toDouble(),
-    country: j['country'] as String,
-  );
+  factory City.fromJson(Map<String, dynamic> j) {
+    final cityNameAscii = j['city_ascii'] as String? ?? j['city'] as String;
+    final country = j['country'] as String;
+
+    return City(
+      city: cityNameAscii,
+      cityNorm: cityNameAscii.toLowerCase(),
+      country: country,
+      countryNorm: country.toLowerCase(),
+      lat: (j['lat'] as num).toDouble(),
+      lng: (j['lng'] as num).toDouble(),
+    );
+  }
 
   /// Haversine distance in kilometres to [lat2]/[lng2].
   double distanceTo(double lat2, double lng2) {
@@ -45,5 +53,5 @@ class City {
 
   @override
   String toString() =>
-      'City(city: $city, cityAscii:$cityAscii, $country, lat: $lat, lng: $lng)';
+      'City(cityAscii:$city, $country, lat: $lat, lng: $lng)';
 }
