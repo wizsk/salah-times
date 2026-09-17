@@ -82,11 +82,11 @@ class CityService {
         return a.c.city.compareTo(b.c.city);
       }
 
-      final c = a.idx.compareTo(b.idx);
       if (b.proiorty != a.proiorty) {
         final r = b.proiorty.compareTo(a.proiorty);
-        return r.compareTo(c);
+        return r;
       }
+      final c = a.idx.compareTo(b.idx);
       return c;
     });
 
