@@ -20,6 +20,8 @@ class NextPrayerInfo {
 
 // int _currTimeSec = 1;
 
+/// the way we are getting the times we can't reliably calculate
+/// next time for midngiht and ismsak
 NextPrayerInfo? computeNextPrayer(PrayerDay p, DateTime now) {
   final en = p.timings.en.where((e) => !e.isNorPrayer).toList();
 
