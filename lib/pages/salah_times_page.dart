@@ -128,7 +128,7 @@ class _SalahTimesPageState extends State<SalahTimesPage>
         }
       }, _onErr);
 
-      _timer ??= Timer.periodic(const Duration(milliseconds: 100), (_) {
+      _timer ??= Timer.periodic(const Duration(seconds: cooloff), (_) {
         // _minutes += 1;
         _rebuild();
       });
