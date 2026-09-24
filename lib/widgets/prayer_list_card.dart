@@ -126,7 +126,10 @@ class _PrayerRow extends StatelessWidget {
                 ),
                 if (en.isNorPrayer)
                   Text(
-                    'Not a prayer',
+                    switch (L.curr) {
+                      L.en => 'Not a prayer',
+                      L.bn => 'নামাজের সময় না',
+                    },
                     style: textTheme.labelSmall?.copyWith(
                       color: fgMuted.withValues(alpha: 0.75),
                     ),

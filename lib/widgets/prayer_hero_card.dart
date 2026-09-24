@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:salah_times/models/prayer_day.dart';
 import 'package:salah_times/theme/app_theme.dart';
+import 'package:salah_times/utils/number.dart';
 import 'package:salah_times/widgets/star_badge.dart';
 
 import '../models/prayer_time.dart';
@@ -14,23 +16,44 @@ class PrayerHeroCard extends StatelessWidget {
     final h = d.inHours;
     final m = d.inMinutes % 60;
 
-    if (m == 0 && h == 0) return 'under 1m';
+    if (m == 0 && h == 0) {
+      return switch (L.curr) {
+        L.en => 'under 1m',
+        L.bn => '১মি এর মধ্যে',
+      };
+    }
 
-    if (h > 0 && m == 0) return 'in ${h}h';
+    if (h > 0 && m == 0) {
+      return switch (L.curr) {
+        L.en => 'in ${h}h',
+        L.bn => '${h.bn}ঘ পর',
+      };
+    }
 
-    if (h > 0) return 'in ${h}h ${m}m';
+    if (h > 0) {
+      return switch (L.curr) {
+        L.en => 'in ${h}h ${m}m',
+        L.bn => '${h.bn}ঘ ${m.bn}মি পর',
+      };
+    }
 
-    return 'in ${m}m';
+    return switch (L.curr) {
+      L.en => 'in ${m}m',
+      L.bn => '${m.bn}মি পর',
+    };
   }
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final next = info.next;
+    final next = info.next!;
+    final nextLabel = next.p == PrayerEntry.sunrise
+        ? PrayerEntry.fajrEnds
+        : next.name;
 
     final use24h = MediaQuery.of(context).alwaysUse24HourFormat;
-    final (hm, amapm) = next?.fmtHMAMPM(use24h) ?? (null, null);
+    final (hm, amapm) = next.fmtHMAMPM(use24h);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(22, 20, 22, 18),
@@ -75,9 +98,7 @@ class PrayerHeroCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              StarBadge(
-                icon: next == null ? Icons.ice_skating_outlined : next.icon,
-              ),
+              StarBadge(icon: next.icon),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
@@ -85,7 +106,7 @@ class PrayerHeroCard extends StatelessWidget {
                   spacing: 2,
                   children: [
                     Text(
-                      next!.name,
+                      nextLabel,
                       style: textTheme.titleMedium?.copyWith(
                         fontFamily: AppTheme.displayFont,
                         fontWeight: FontWeight.w600,
@@ -114,7 +135,7 @@ class PrayerHeroCard extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                     color: scheme.onPrimaryContainer,
                   ),
-                  children: amapm!.isEmpty
+                  children: amapm.isEmpty
                       ? null
                       : [
                           TextSpan(

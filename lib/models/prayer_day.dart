@@ -128,6 +128,11 @@ enum PrayerEntry {
     };
   }
 
+  static String get fajrEnds => switch (L.curr) {
+    L.en => '${fajr._names.en} ends',
+    L.bn => '${fajr._names.bn} শেষ',
+  };
+
   static const prayerTimes = [
     fajr,
     sunrise,
