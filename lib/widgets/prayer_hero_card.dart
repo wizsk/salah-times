@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:salah_times/models/prayer_day.dart';
+import 'package:salah_times/models/prayer_time.dart';
 import 'package:salah_times/theme/app_theme.dart';
 import 'package:salah_times/utils/number.dart';
 import 'package:salah_times/widgets/star_badge.dart';
 
-import '../models/prayer_time.dart';
-
 class PrayerHeroCard extends StatelessWidget {
-  PrayerHeroCard({super.key, required this.info})
+  PrayerHeroCard({super.key, required this.info, required this.now})
     : assert(info.next != null, 'this can not be null');
 
   final NextPrayerInfo info;
+  final DateTime now;
 
   static String _countdownLabel(Duration d) {
     final h = d.inHours;
@@ -43,21 +43,90 @@ class PrayerHeroCard extends StatelessWidget {
     };
   }
 
+  static String _prohibitedMinFMT(int m) {
+    if (m == 0) {
+      return switch (L.curr) {
+        L.en => 'for less than 1m',
+        L.bn => '১মি এর কম',
+      };
+    }
+
+    return switch (L.curr) {
+      L.en => 'for ${m}m',
+      L.bn => '${m.bn}মি এর জন্যে',
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    // final cs = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final next = info.next!;
-    final nextLabel = next.p == PrayerEntry.sunrise
-        ? PrayerEntry.fajrEnds
-        : next.name;
 
-    final use24h = MediaQuery.of(context).alwaysUse24HourFormat;
-    final (hm, amapm) = next.fmtHMAMPM(use24h);
+    final next = info.next!;
+
+    bool noPrayerWarn = false;
+    int noPrayerForMin = 0;
+    double noPrayerTotal = 1;
 
     if (next.p == PrayerEntry.dhuhr) {
-      // do stuff...
+      final rem = info.remaining!.inMinutes;
+      if (rem <= 5) {
+        noPrayerWarn = true;
+        noPrayerForMin = rem;
+        noPrayerTotal = 5;
+      }
     }
+
+    if (next.p == PrayerEntry.maghrib) {
+      final rem = info.remaining!.inMinutes;
+      if (rem <= 15) {
+        noPrayerWarn = true;
+        noPrayerForMin = rem;
+        noPrayerTotal = 15;
+      }
+    }
+
+    if (info.curr?.p == PrayerEntry.sunrise) {
+      final m = info.curr!.toMin;
+      final rem = 15 - (((now.hour * 60) + now.minute) - m);
+
+      noPrayerWarn = true;
+      noPrayerForMin = rem;
+      noPrayerTotal = 15;
+    }
+
+    final nextPrayerMainLabel = next.p == PrayerEntry.sunrise
+        ? PrayerEntry.fajrEnds
+        : noPrayerWarn
+        ? PrayerEntry.salahProhibitaedLabel
+        : next.name;
+
+    final progress = noPrayerWarn
+        ? (noPrayerTotal - noPrayerForMin.toDouble()) / noPrayerTotal
+        : info.progress;
+
+    final progressFrom = noPrayerWarn && info.curr?.p != PrayerEntry.sunrise
+        ? PrayerEntry.salahProhibitaedLabel
+        : info.curr?.name;
+
+    final progressTo = info.curr?.p == PrayerEntry.sunrise ? null : next.name;
+
+    final countDownLabel = noPrayerWarn
+        ? _prohibitedMinFMT(noPrayerForMin)
+        : _countdownLabel(info.remaining!);
+
+    final use24h = MediaQuery.of(context).alwaysUse24HourFormat;
+    final (hm, amapm) = noPrayerWarn && info.curr?.p == PrayerEntry.sunrise
+        ? PrayerTimingEntry(
+            PrayerEntry.sunrise,
+            now.copyWith(minute: now.minute + noPrayerForMin),
+          ).fmtHMAMPM(use24h)
+        : next.fmtHMAMPM(use24h);
+
+    final fg = noPrayerWarn
+        ? scheme.onErrorContainer
+        : scheme.onPrimaryContainer;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(22, 20, 22, 18),
@@ -67,7 +136,10 @@ class PrayerHeroCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           stops: const [0.0, 0.85],
-          colors: [scheme.primaryContainer, scheme.surfaceContainerHigh],
+          colors: noPrayerWarn
+              ? [scheme.errorContainer, scheme.errorContainer.withAlpha(100)]
+              : [scheme.primaryContainer, scheme.surfaceContainerHigh],
+          // colors: [scheme.primaryContainer, scheme.surfaceContainerHigh],
         ),
         boxShadow: [
           BoxShadow(
@@ -85,15 +157,18 @@ class PrayerHeroCard extends StatelessWidget {
               Icon(
                 Icons.schedule_rounded,
                 size: 15,
-                color: scheme.onPrimaryContainer.withValues(alpha: 0.8),
+                color: fg.withValues(alpha: 0.8),
               ),
               const SizedBox(width: 6),
               Text(
-                'NEXT PRAYER',
+                switch (L.curr) {
+                  L.en => 'NEXT PRAYER',
+                  L.bn => 'পরবর্তি নামাজ',
+                },
                 style: textTheme.labelSmall?.copyWith(
-                  color: scheme.onPrimaryContainer.withValues(alpha: 0.8),
+                  color: fg.withValues(alpha: 0.8),
                   fontWeight: FontWeight.w700,
-                  letterSpacing: 1.2,
+                  // letterSpacing: 1.2,
                 ),
               ),
             ],
@@ -102,7 +177,11 @@ class PrayerHeroCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              StarBadge(icon: next.icon),
+              StarBadge(
+                icon: noPrayerWarn ? Icons.block : next.icon,
+                fg: noPrayerWarn ? scheme.onError : scheme.onPrimary,
+                bg: noPrayerWarn ? scheme.error : scheme.primary,
+              ),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
@@ -110,20 +189,18 @@ class PrayerHeroCard extends StatelessWidget {
                   spacing: 2,
                   children: [
                     Text(
-                      nextLabel,
+                      nextPrayerMainLabel,
                       style: textTheme.titleMedium?.copyWith(
                         fontFamily: AppTheme.displayFont,
                         fontWeight: FontWeight.w600,
-                        color: scheme.onPrimaryContainer,
+                        color: fg,
                       ),
                     ),
                     if (info.remaining != null)
                       Text(
-                        _countdownLabel(info.remaining!),
+                        countDownLabel,
                         style: textTheme.bodyMedium?.copyWith(
-                          color: scheme.onPrimaryContainer.withValues(
-                            alpha: 0.85,
-                          ),
+                          color: fg.withValues(alpha: 0.85),
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -137,7 +214,7 @@ class PrayerHeroCard extends StatelessWidget {
                   style: textTheme.titleLarge?.copyWith(
                     fontFamily: AppTheme.displayFont,
                     fontWeight: FontWeight.w600,
-                    color: scheme.onPrimaryContainer,
+                    color: fg,
                   ),
                   children: amapm.isEmpty
                       ? null
@@ -146,9 +223,7 @@ class PrayerHeroCard extends StatelessWidget {
                             text: '  $amapm',
                             style: textTheme.labelMedium?.copyWith(
                               fontWeight: FontWeight.w600,
-                              color: scheme.onPrimaryContainer.withValues(
-                                alpha: 0.7,
-                              ),
+                              color: fg.withValues(alpha: 0.7),
                             ),
                           ),
                         ],
@@ -160,23 +235,20 @@ class PrayerHeroCard extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(99),
             child: LinearProgressIndicator(
-              value: info.progress,
+              value: progress,
               minHeight: 6,
-              backgroundColor: scheme.onPrimaryContainer.withValues(
-                alpha: 0.16,
+              backgroundColor: fg.withValues(alpha: 0.16),
+              valueColor: AlwaysStoppedAnimation(
+                noPrayerWarn ? scheme.error : scheme.primary,
               ),
-              valueColor: AlwaysStoppedAnimation(scheme.primary),
             ),
           ),
           const SizedBox(height: 6),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                info.curr?.name ?? '...',
-                style: _labelStyle(textTheme, scheme),
-              ),
-              Text(next.name, style: _labelStyle(textTheme, scheme)),
+              Text(progressFrom ?? '...', style: _labelStyle(textTheme, fg)),
+              Text(progressTo ?? '...', style: _labelStyle(textTheme, fg)),
             ],
           ),
         ],
@@ -184,9 +256,9 @@ class PrayerHeroCard extends StatelessWidget {
     );
   }
 
-  TextStyle? _labelStyle(TextTheme textTheme, ColorScheme scheme) {
+  TextStyle? _labelStyle(TextTheme textTheme, Color c) {
     return textTheme.labelMedium?.copyWith(
-      color: scheme.onPrimaryContainer.withValues(alpha: 0.65),
+      color: c.withValues(alpha: 0.65),
       fontWeight: FontWeight.w600,
     );
   }

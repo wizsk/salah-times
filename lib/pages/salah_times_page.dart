@@ -128,7 +128,8 @@ class _SalahTimesPageState extends State<SalahTimesPage>
         }
       }, _onErr);
 
-      _timer ??= Timer.periodic(const Duration(seconds: cooloff), (_) {
+      _timer ??= Timer.periodic(const Duration(milliseconds: 100), (_) {
+        // _minutes += 1;
         _rebuild();
       });
     } catch (err) {
@@ -136,10 +137,10 @@ class _SalahTimesPageState extends State<SalahTimesPage>
     }
   }
 
-  // int _minutes = 0;
+  // int _minutes = 20;
   DateTime _now() {
     final t = DateTime.now();
-    // final t = DateTime.now().copyWith(hour: 0, minute: _minutes);
+    // final t = DateTime.now().copyWith(hour: 4, minute: _minutes);
     return t;
   }
 
@@ -548,12 +549,13 @@ class _SalahTimesPageState extends State<SalahTimesPage>
         : PDS.getData(t.month, t.year, _rebuild, _onErr);
 
     if (d.hasVal) {
+      final now = _now();
       prayer = d.prayers![t.day - 1];
-      info = today ? computeNextPrayer(prayer, _now()) : null;
+      info = today ? computeNextPrayer(prayer, now) : null;
 
       whenInited = [
         if (info != null && info.next != null) ...[
-          PrayerHeroCard(info: info),
+          PrayerHeroCard(info: info, now: now),
           const SizedBox(height: 22),
         ], //else
         // const SizedBox(height: 8),
@@ -565,6 +567,12 @@ class _SalahTimesPageState extends State<SalahTimesPage>
         ),
         const SizedBox(height: 16),
         AuxTimeRow(items: prayer),
+
+        if (today)
+          Padding(
+            padding: const EdgeInsets.only(top: 20, bottom: 10),
+            child: ProhibitedPrayerTimes(prayerWarning()),
+          ),
       ];
     } else {
       whenInited = const [
@@ -603,11 +611,6 @@ class _SalahTimesPageState extends State<SalahTimesPage>
           const SizedBox(height: 18),
           _locationDate(prayer, t),
           ...whenInited,
-          if (_inited && today)
-            Padding(
-              padding: const EdgeInsets.only(top: 20, bottom: 10),
-              child: ProhibitedPrayerTimes(prayerWarning()),
-            ),
         ],
       ),
     );

@@ -23,20 +23,21 @@ class NextPrayerInfo {
 /// the way we are getting the times we can't reliably calculate
 /// next time for midngiht and ismsak
 NextPrayerInfo? computeNextPrayer(PrayerDay p, DateTime now) {
-  final en = p.timings.en.where((e) => !e.isNorPrayer).toList();
+  final en = p.timings.en.where((e) => !e.extra).toList();
 
   // print(en.map((e) => e.name).join("\n"));
   // print('');
 
   final pl = en.length - 1;
 
-  final nowMin = (now.hour * 60) + now.minute;
+  final sec = now.second > 40 ? 1 : 0;
+  final nowMin = (now.hour * 60) + now.minute + sec;
   // final int extraMin = _currTimeSec ~/ 60;
   // final nowMin = (50 * 60) + 42 + extraMin;
   // _currTimeSec += cooloff;
 
   for (var i = pl; i > -1; i--) {
-    final curr = en[i];
+    var curr = en[i];
 
     final min = curr.toMin;
 
@@ -47,16 +48,13 @@ NextPrayerInfo? computeNextPrayer(PrayerDay p, DateTime now) {
       }
 
       PrayerTimingEntry next;
-      if (curr.p == PrayerEntry.fajr) {
-        final sun = p.timings.en.firstWhere((e) => e.p == PrayerEntry.sunrise);
-        if (sun.toMin > nowMin) {
-          next = sun;
-        } else {
-          next = en[i + 1];
+      if (curr.p == PrayerEntry.sunrise) {
+        if (nowMin - curr.toMin >= 15) {
+          curr = en[i - 1];
         }
-      } else {
-        next = en[i + 1];
       }
+
+      next = en[i + 1];
 
       final nMin = next.toMin;
 

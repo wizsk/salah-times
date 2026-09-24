@@ -143,6 +143,11 @@ enum PrayerEntry {
     midnight,
     imsak,
   ];
+
+  static String get salahProhibitaedLabel => switch (L.curr) {
+    L.en => 'Prohibited',
+    L.bn => 'নিসিদ্ধ',
+  };
 }
 
 class PrayerTimingEntry {
