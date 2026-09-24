@@ -92,3 +92,12 @@ flutter:
           weight: 600
         - asset: assets/fonts/SpaceGrotesk/SpaceGrotesk-Bold.ttf
           weight: 700
+    - family: NotoSansBengali
+      fonts:
+        - asset: assets/fonts/Noto_Sans_Bengali/NotoSansBengali-Regular.ttf
+        - asset: assets/fonts/Noto_Sans_Bengali/NotoSansBengali-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Noto_Sans_Bengali/NotoSansBengali-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Noto_Sans_Bengali/NotoSansBengali-Bold.ttf
+          weight: 700

@@ -55,6 +55,10 @@ class PrayerHeroCard extends StatelessWidget {
     final use24h = MediaQuery.of(context).alwaysUse24HourFormat;
     final (hm, amapm) = next.fmtHMAMPM(use24h);
 
+    if (next.p == PrayerEntry.dhuhr) {
+      // do stuff...
+    }
+
     return Container(
       padding: const EdgeInsets.fromLTRB(22, 20, 22, 18),
       decoration: BoxDecoration(

@@ -10,6 +10,8 @@ class AppTheme {
 
   static const String displayFont = 'SpaceGrotesk';
   static const String bodyFont = 'PlusJakartaSans';
+  static const String banglaFont = 'NotoSansBengali';
+
   // static const String arabicFont = 'NotoSansArabic'; //'NotoNaskhArabic';
 
   /// Shorthand for Arabic-script text (prayer names, Hijri date, etc).
@@ -105,12 +107,14 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: scheme,
       fontFamily: bodyFont,
+      fontFamilyFallback: [banglaFont],
       scaffoldBackgroundColor: scheme.surface,
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         backgroundColor: scheme.onSurface,
         contentTextStyle: TextStyle(
           fontFamily: bodyFont,
+          fontFamilyFallback: [banglaFont],
           color: scheme.surface,
           fontWeight: FontWeight.w500,
         ),

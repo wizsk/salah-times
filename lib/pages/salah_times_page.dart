@@ -18,6 +18,7 @@ import 'package:salah_times/widgets/on_timezone_chaned.dart';
 import 'package:salah_times/widgets/prayer_hero_card.dart';
 import 'package:salah_times/widgets/prayer_list_card.dart';
 import 'package:salah_times/widgets/prayer_modifers.dart';
+import 'package:salah_times/widgets/prohibited_prayer_times.dart';
 import 'package:salah_times/widgets/settings.dart';
 
 const int cooloff = 15;
@@ -418,7 +419,7 @@ class _SalahTimesPageState extends State<SalahTimesPage>
     }
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 2, 20, 18),
+      padding: const EdgeInsets.only(top: 2, bottom: 18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -552,27 +553,18 @@ class _SalahTimesPageState extends State<SalahTimesPage>
 
       whenInited = [
         if (info != null && info.next != null) ...[
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: PrayerHeroCard(info: info),
-          ),
+          PrayerHeroCard(info: info),
           const SizedBox(height: 22),
         ], //else
         // const SizedBox(height: 8),
         // _sectionLabel("Salah times"),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: PrayerListCard(
-            prayer: prayer,
-            next: info?.next?.p,
-            curr: info?.curr?.p,
-          ),
+        PrayerListCard(
+          prayer: prayer,
+          next: info?.next?.p,
+          curr: info?.curr?.p,
         ),
         const SizedBox(height: 16),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: AuxTimeRow(items: prayer),
-        ),
+        AuxTimeRow(items: prayer),
       ];
     } else {
       whenInited = const [
@@ -603,14 +595,21 @@ class _SalahTimesPageState extends State<SalahTimesPage>
       ];
     }
 
-    final content = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // _topBar(),
-        const SizedBox(height: 18),
-        _locationDate(prayer, t),
-        ...whenInited,
-      ],
+    final content = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 18),
+          _locationDate(prayer, t),
+          ...whenInited,
+          if (_inited && today)
+            Padding(
+              padding: const EdgeInsets.only(top: 20, bottom: 10),
+              child: ProhibitedPrayerTimes(prayerWarning()),
+            ),
+        ],
+      ),
     );
 
     final child = Center(
