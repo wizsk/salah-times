@@ -1,4 +1,5 @@
 import 'package:salah_times/models/prayer_day.dart';
+import 'package:salah_times/utils/utils.dart';
 
 // enum NextPrayerKind { prayer, doNotPray }
 
@@ -22,7 +23,11 @@ class NextPrayerInfo {
 
 /// the way we are getting the times we can't reliably calculate
 /// next time for midngiht and ismsak
-NextPrayerInfo? computeNextPrayer(PrayerDay p, DateTime now) {
+NextPrayerInfo? computeNextPrayer(
+  PrayerDay p,
+  DateTime now,
+  PrayerDay? Function() getNextDay,
+) {
   final en = p.timings.en.where((e) => !e.extra).toList();
 
   // print(en.map((e) => e.name).join("\n"));
@@ -42,9 +47,21 @@ NextPrayerInfo? computeNextPrayer(PrayerDay p, DateTime now) {
     final min = curr.toMin;
 
     if (min < nowMin) {
-      // found current prayer
+      // found isha
       if (i == pl) {
-        return NextPrayerInfo(curr: curr);
+        var nextPrayer = getNextDay()?.timings.en[0] ?? p.timings.en[0];
+
+        final totalGap =
+            curr.time.totalMinutesAfterIsha + nextPrayer.time.totalMinutes;
+
+        final remaining = totalGap - (nowMin - curr.time.totalMinutes);
+
+        return NextPrayerInfo(
+          curr: curr,
+          next: nextPrayer,
+          progress: (totalGap - remaining).toDouble() / totalGap.toDouble(),
+          remaining: Duration(minutes: remaining, seconds: now.second),
+        );
       }
 
       PrayerTimingEntry next;
@@ -72,10 +89,18 @@ NextPrayerInfo? computeNextPrayer(PrayerDay p, DateTime now) {
     }
 
     if (i == 0) {
+      var previous = p.timings.en[5];
+
+      final totalGap =
+          previous.time.totalMinutesAfterIsha + curr.time.totalMinutes;
+
+      final rem = totalGap - (nowMin + previous.time.totalMinutesAfterIsha);
+
       return NextPrayerInfo(
         next: curr,
-        remaining: Duration(minutes: min - nowMin),
-        progress: (nowMin).toDouble() / (min).toDouble(),
+        curr: previous,
+        remaining: Duration(minutes: rem),
+        progress: (totalGap - rem).toDouble() / totalGap.toDouble(),
       );
     }
   }

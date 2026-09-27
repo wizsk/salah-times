@@ -120,7 +120,9 @@ class PrayerHeroCard extends StatelessWidget {
     final (hm, amapm) = noPrayerWarn && info.curr?.p == PrayerEntry.sunrise
         ? PrayerTimingEntry(
             PrayerEntry.sunrise,
-            now.copyWith(minute: now.minute + noPrayerForMin),
+            TimeOfDay.fromDateTime(
+              now.copyWith(minute: now.minute + noPrayerForMin),
+            ),
           ).fmtHMAMPM(use24h)
         : next.fmtHMAMPM(use24h);
 

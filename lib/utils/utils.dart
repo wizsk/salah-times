@@ -24,3 +24,34 @@ EdgeInsets scrollPaddingBottmSheet(
 void postFrame(VoidCallback f) {
   WidgetsBinding.instance.addPostFrameCallback((_) => f());
 }
+
+extension DateTimeExt on DateTime {
+  DateTime incrementDay([int days = 1]) {
+    return DateTime(
+      year,
+      month,
+      day + days,
+      hour,
+      minute,
+      second,
+      millisecond,
+      microsecond,
+    );
+  }
+
+  int get totalMinutes {
+    return ((hour * 60) + minute);
+  }
+}
+
+extension TimeOfDayExt on TimeOfDay {
+  static const _dayMin = 24 * 60;
+
+  int get totalMinutesAfterIsha {
+    return _dayMin - ((hour * 60) + minute);
+  }
+
+  int get totalMinutes {
+    return ((hour * 60) + minute);
+  }
+}

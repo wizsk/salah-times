@@ -36,7 +36,7 @@ Future<void> showLanguagePicker(BuildContext context) async {
                 ListTile(
                   leading: Radio<L>(value: lang),
                   title: Text(lang.name),
-                  subtitle: lang.nameLn == null ? null : Text(lang.nameLn!),
+                  subtitle: Text(lang.nameLn),
                   onTap: () {
                     L.curr = lang;
                     Navigator.pop(context);

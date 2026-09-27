@@ -40,23 +40,36 @@ abstract final class PDS {
   static const _noVal = PDSVal(InitState.not);
   static const emtpy = _noVal;
 
-  static PDSVal getData(
-    int month,
-    int year,
-    VoidCallback after,
-    void Function(String) onErr,
-  ) {
-    final val = _gd(month, year);
+  // static PrayerDay? getDataTry(
+  //   int day,
+  //   int month,
+  //   int year,
+  //   VoidCallback after,
+  //   void Function(String) onErr,
+  // ) {
+  //   final val = getData(day, month, year, after, onErr);
+  //   return val._initing ? null : val;
+  // }
+
+  static PrayerDay? getData(
+    // int day,
+    // int month,
+    // int year,
+    DateTime date, [
+    VoidCallback? after,
+    void Function(String)? onErr,
+  ]) {
+    final val = _gd(date.month, date.year);
 
     if (val == null || val.noVal) {
-      if (val?._initing == true) return _noVal;
+      if (val?._initing == true) return null;
 
-      _pd(month, year, PDSVal(InitState.initing));
-      _getData(month, year, after, onErr);
-      return _noVal;
+      _pd(date.month, date.year, PDSVal(InitState.initing));
+      _getData(date.month, date.year, after, onErr);
+      return null;
     }
 
-    return val;
+    return val.prayers?[date.day - 1];
   }
 
   // static final Set<(int, int)> _u = {};
@@ -64,8 +77,8 @@ abstract final class PDS {
   static Future<void> _getData(
     int month,
     int year,
-    VoidCallback after,
-    void Function(String) onErr,
+    VoidCallback? after,
+    void Function(String)? onErr,
   ) async {
     // _c++;
     // _u.add((month, year));
@@ -73,9 +86,9 @@ abstract final class PDS {
     try {
       final data = await Prayer.fetchMonthIfNeeded(year, month);
       _pd(month, year, PDSVal(InitState.done, data));
-      after();
+      after?.call();
     } catch (e) {
-      onErr(e.toString());
+      if (onErr != null) onErr(e.toString());
     }
   }
 }

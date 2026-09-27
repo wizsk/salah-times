@@ -117,7 +117,7 @@ class _SalahTimesPageState extends State<SalahTimesPage>
         }
       }
 
-      PDS.getData(now.month, now.year, () {
+      PDS.getData(now, () {
         _inited = true;
         _rebuild();
 
@@ -128,7 +128,7 @@ class _SalahTimesPageState extends State<SalahTimesPage>
         }
       }, _onErr);
 
-      _timer ??= Timer.periodic(const Duration(seconds: cooloff), (_) {
+      _timer ??= Timer.periodic(const Duration(seconds: 15), (_) {
         // _minutes += 1;
         _rebuild();
       });
@@ -137,10 +137,10 @@ class _SalahTimesPageState extends State<SalahTimesPage>
     }
   }
 
-  // int _minutes = 20;
+  // int _minutes = 57;
   DateTime _now() {
     final t = DateTime.now();
-    // final t = DateTime.now().copyWith(hour: 4, minute: _minutes);
+    // final t = DateTime.now().copyWith(hour: 23, minute: _minutes);
     return t;
   }
 
@@ -544,20 +544,27 @@ class _SalahTimesPageState extends State<SalahTimesPage>
 
     List<Widget> whenInited;
 
-    final d = !_inited || !AppConf.hasLoc
-        ? PDS.emtpy
-        : PDS.getData(t.month, t.year, _rebuild, _onErr);
+    final todaysTimings = !_inited || !AppConf.hasLoc
+        ? null
+        : PDS.getData(t, _rebuild, _onErr);
 
-    if (d.hasVal) {
+    if (todaysTimings != null) {
       final now = _now();
-      prayer = d.prayers![t.day - 1];
-      info = today ? computeNextPrayer(prayer, now) : null;
+      prayer = todaysTimings;
+
+      // print(prayer.timings.en.map((e) => '${e.name} ${e.time}').join(' : '));
+      info = today
+          ? computeNextPrayer(prayer, now, () {
+              return PDS.getData(t.incrementDay(), _rebuild);
+            })
+          : null;
 
       whenInited = [
         if (info != null && info.next != null) ...[
           PrayerHeroCard(info: info, now: now),
           const SizedBox(height: 22),
-        ], //else
+        ],
+        //else
         // const SizedBox(height: 8),
         // _sectionLabel("Salah times"),
         PrayerListCard(
@@ -619,7 +626,7 @@ class _SalahTimesPageState extends State<SalahTimesPage>
       child: ConstrainedBox(constraints: maxContentWidth, child: content),
     );
 
-    if (d.noVal) {
+    if (todaysTimings == null) {
       return child;
     }
 

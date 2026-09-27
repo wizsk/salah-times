@@ -65,12 +65,12 @@ class _PrayerName {
 }
 
 enum L {
-  en('English'),
+  en('English', 'Default'),
   bn('Bangla', 'বাংলা');
 
-  const L(this.name, [this.nameLn]);
+  const L(this.name, this.nameLn);
   final String name;
-  final String? nameLn;
+  final String nameLn;
 
   static L _curr = bn;
   static L get curr => _curr;
@@ -152,9 +152,13 @@ enum PrayerEntry {
 
 class PrayerTimingEntry {
   final PrayerEntry p;
-  final DateTime time;
+  final TimeOfDay time;
 
   PrayerTimingEntry(this.p, this.time);
+
+  PrayerTimingEntry copyWith({PrayerEntry? p, TimeOfDay? time}) {
+    return PrayerTimingEntry(p ?? this.p, time ?? this.time);
+  }
 
   String get name => p.name;
   IconData get icon => p.icon;
@@ -205,13 +209,17 @@ class PrayerTimings {
     int month,
     int day,
   ) {
-    DateTime toTime(String s) {
+    final d = DateTime(year, month, day).toUtc();
+
+    TimeOfDay toTime(String s) {
       final time = s.split(" ").first;
       final sp = time.split(":");
       final hour = int.parse(sp[0]);
       final minute = int.parse(sp[1]);
 
-      return DateTime.utc(year, month, day, hour, minute).toLocal();
+      return TimeOfDay.fromDateTime(
+        d.copyWith(hour: hour, minute: minute).toLocal(),
+      );
     }
 
     final en = PrayerEntry.prayerTimes.map((p) {
