@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:salah_times/models/prayer_day.dart';
 import 'package:salah_times/models/prayer_time.dart';
+import 'package:salah_times/pages/salah_times_page.dart';
 import 'package:salah_times/theme/app_theme.dart';
 import 'package:salah_times/utils/number.dart';
+import 'package:salah_times/widgets/prohibited_prayer_times.dart';
 import 'package:salah_times/widgets/star_badge.dart';
 
 class PrayerHeroCard extends StatelessWidget {
@@ -60,7 +62,7 @@ class PrayerHeroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    // final cs = Theme.of(context).colorScheme;
+    final cs = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
     final next = info.next!;
@@ -89,6 +91,7 @@ class PrayerHeroCard extends StatelessWidget {
 
     if (info.curr?.p == PrayerEntry.sunrise) {
       final m = info.curr!.toMin;
+      // print((((now.hour * 60) + now.minute) - m));
       final rem = 15 - (((now.hour * 60) + now.minute) - m);
 
       noPrayerWarn = true;
@@ -130,7 +133,7 @@ class PrayerHeroCard extends StatelessWidget {
         ? scheme.onErrorContainer
         : scheme.onPrimaryContainer;
 
-    return Container(
+    final mainContent = Container(
       padding: const EdgeInsets.fromLTRB(22, 20, 22, 18),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
@@ -155,6 +158,7 @@ class PrayerHeroCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
+            // mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 Icons.schedule_rounded,
@@ -173,6 +177,47 @@ class PrayerHeroCard extends StatelessWidget {
                   // letterSpacing: 1.2,
                 ),
               ),
+              Spacer(),
+              InkWell(
+                customBorder: const CircleBorder(),
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    fullscreenDialog: false,
+                    builder: (context) {
+                      return AlertDialog(
+                        scrollable: true,
+                        constraints: maxContentWidth,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 28,
+                        ),
+                        content: ProhibitedPrayerTimes(prayerWarning()),
+                        actions: [
+                          FilledButton.icon(
+                            label: Text('Close'),
+                            icon: Icon(Icons.close),
+                            onPressed: () => Navigator.of(context).pop(),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(1.5),
+                  decoration: BoxDecoration(
+                    color: noPrayerWarn ? scheme.error : scheme.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.question_mark_rounded,
+                    size: 15,
+                    color: noPrayerWarn ? scheme.onError : scheme.onPrimary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 6),
             ],
           ),
           const SizedBox(height: 14),
@@ -255,6 +300,24 @@ class PrayerHeroCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+
+    if (!noPrayerWarn) return mainContent;
+
+    return Column(
+      spacing: 18,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        mainContent,
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(32),
+            color: cs.secondaryContainer,
+          ),
+          padding: EdgeInsets.symmetric(vertical: 16, horizontal: 18),
+          child: ProhibitedPrayerTimes(prayerWarning()),
+        ),
+      ],
     );
   }
 

@@ -16,7 +16,7 @@ PrayerWarning prayerWarning() {
       times: [
         '15 minutes after sunrise',
         '5 minutes before Zuhr',
-        '15 minutes before sunset (that day’s Asr may still be prayed if due)',
+        '15 minutes before sunset (current day’s Asr may still be offered if missed)',
       ],
     ),
     L.bn => const PrayerWarning(
@@ -40,75 +40,64 @@ class ProhibitedPrayerTimes extends StatelessWidget {
     final th = theme.textTheme;
     final cs = theme.colorScheme;
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cs.errorContainer.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.error, size: 22, color: cs.error),
-              const SizedBox(width: 8),
-              Text(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.error, size: 22, color: cs.primary),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
                 data.title,
-                style: th.titleMedium?.copyWith(
-                  color: cs.onErrorContainer,
-                  fontWeight: FontWeight.w600,
+                style: th.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+
+        ...data.times.indexed.map((entry) {
+          final (i, text) = entry;
+          final bullet = switch (L.curr) {
+            L.en => (i + 1).toString(),
+            L.bn => (i + 1).bn,
+          };
+
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: i == data.times.length - 1 ? 0 : 8,
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              // mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(top: 2),
+                  width: 20,
+                  height: 20,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: cs.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    bullet,
+                    style: th.labelMedium?.copyWith(
+                      color: cs.onPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-
-          ...data.times.indexed.map((entry) {
-            final (i, text) = entry;
-            final bullet = switch (L.curr) {
-              L.en => (i + 1).toString(),
-              L.bn => (i + 1).bn,
-            };
-
-            return Padding(
-              padding: EdgeInsets.only(
-                bottom: i == data.times.length - 1 ? 0 : 8,
-              ),
-              child: Row(
-                // crossAxisAlignment: CrossAxisAlignment.start,
-                // mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(top: 2),
-                    width: 20,
-                    height: 20,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: cs.error,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      bullet,
-                      style: th.labelMedium?.copyWith(
-                        color: cs.onError,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      text,
-                      style: th.bodyLarge?.copyWith(color: cs.onErrorContainer),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }),
-        ],
-      ),
+                const SizedBox(width: 8),
+                Expanded(child: Text(text, style: th.bodyLarge)),
+              ],
+            ),
+          );
+        }),
+      ],
     );
   }
 }

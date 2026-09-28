@@ -39,9 +39,9 @@ extension DateTimeExt on DateTime {
     );
   }
 
-  int get totalMinutes {
-    return ((hour * 60) + minute);
-  }
+  // int get totalMinutes {
+  //   return ((hour * 60) + minute);
+  // }
 }
 
 extension TimeOfDayExt on TimeOfDay {
@@ -51,7 +51,7 @@ extension TimeOfDayExt on TimeOfDay {
     return _dayMin - ((hour * 60) + minute);
   }
 
-  int get totalMinutes {
+  int get inMinutes {
     return ((hour * 60) + minute);
   }
 }

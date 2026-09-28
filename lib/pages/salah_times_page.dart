@@ -18,7 +18,6 @@ import 'package:salah_times/widgets/on_timezone_chaned.dart';
 import 'package:salah_times/widgets/prayer_hero_card.dart';
 import 'package:salah_times/widgets/prayer_list_card.dart';
 import 'package:salah_times/widgets/prayer_modifers.dart';
-import 'package:salah_times/widgets/prohibited_prayer_times.dart';
 import 'package:salah_times/widgets/settings.dart';
 
 const int cooloff = 15;
@@ -137,10 +136,10 @@ class _SalahTimesPageState extends State<SalahTimesPage>
     }
   }
 
-  // int _minutes = 57;
+  // int _minutes = 47;
   DateTime _now() {
     final t = DateTime.now();
-    // final t = DateTime.now().copyWith(hour: 23, minute: _minutes);
+    // final t = DateTime.now().copyWith(hour: 5, minute: _minutes);
     return t;
   }
 
@@ -575,11 +574,11 @@ class _SalahTimesPageState extends State<SalahTimesPage>
         const SizedBox(height: 16),
         AuxTimeRow(items: prayer),
 
-        if (today)
-          Padding(
-            padding: const EdgeInsets.only(top: 20, bottom: 10),
-            child: ProhibitedPrayerTimes(prayerWarning()),
-          ),
+        // if (today)
+        //   Padding(
+        //     padding: const EdgeInsets.only(top: 20, bottom: 10),
+        //     child: ProhibitedPrayerTimes(prayerWarning()),
+        //   ),
       ];
     } else {
       whenInited = const [
