@@ -128,7 +128,7 @@ class _SalahTimesPageState extends State<SalahTimesPage>
       }, _onErr);
 
       _timer ??= Timer.periodic(const Duration(seconds: 15), (_) {
-        // _minutes += 1;
+        // _minutes += 2;
         _rebuild();
       });
     } catch (err) {
@@ -136,10 +136,10 @@ class _SalahTimesPageState extends State<SalahTimesPage>
     }
   }
 
-  // int _minutes = 47;
+  // int _minutes = 0;
   DateTime _now() {
     final t = DateTime.now();
-    // final t = DateTime.now().copyWith(hour: 5, minute: _minutes);
+    // final t = DateTime.now().copyWith(hour: 17, minute: 43, second: _minutes);
     return t;
   }
 
@@ -243,15 +243,7 @@ class _SalahTimesPageState extends State<SalahTimesPage>
         break;
 
       case 'location':
-        final pre = AppConf.loc.copyWith();
-        await showLocationProvidorScreen(context);
-
-        if (pre != AppConf.loc && mounted) {
-          setState(() {
-            PDS.clear();
-            _cityName = AppConf.loc.city;
-          });
-        }
+        _changeLocation(context);
         break;
 
       case 'method':
@@ -402,43 +394,56 @@ class _SalahTimesPageState extends State<SalahTimesPage>
     );
   }
 
-  Widget _locationDate(PrayerDay? p, DateTime now) {
+  Widget _locationDate(PrayerDay? p, DateTime now, bool today) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-
-    // final hijri = HijriDateService.fromGregorian(now);
 
     final englishDate =
         '${_weekday(now.weekday)}, ${now.day} ${_month(now.month)} ${now.year}';
 
-    var arabicDate = '';
-    if (p != null) {
-      arabicDate = p.hijri.day.isEmpty || p.hijri.monthEn.isEmpty
-          ? ''
-          : '${_weekdayAr(now.weekday)}،  ${p.hijri.day} ${p.hijri.monthEn} ${p.hijri.year}';
-    }
+    final arabicDate =
+        p != null && p.hijri.day.isNotEmpty && p.hijri.monthEn.isNotEmpty
+        ? '${_weekdayAr(now.weekday)}، ${p.hijri.day} '
+              '${p.hijri.monthEn} ${p.hijri.year}'
+        : '';
 
     return Padding(
-      padding: const EdgeInsets.only(top: 2, bottom: 18),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Location / settings
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.location_on_rounded, size: 26, color: scheme.primary),
+              InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () {
+                  _changeLocation(context);
+                },
+                child: Icon(
+                  Icons.location_on_rounded,
+                  size: 22,
+                  color: scheme.primary,
+                ),
+              ),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
                   _cityName,
-                  style: textTheme.headlineMedium?.copyWith(
-                    fontFamily: AppTheme.displayFont,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: -0.2,
-                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
+                  style: textTheme.titleLarge?.copyWith(
+                    // fontFamily: AppTheme.displayFont,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
+              // const SizedBox(width: 6),
+              //   ],
+              // ),
+              // ),
+              const SizedBox(width: 6),
               IconButton(
                 onPressed: () => _settings(context),
                 tooltip: 'Settings',
@@ -447,40 +452,155 @@ class _SalahTimesPageState extends State<SalahTimesPage>
               ),
             ],
           ),
-          const SizedBox(height: 6),
 
-          Padding(
-            padding: const EdgeInsets.only(left: 28.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 4,
-              children: [
-                Text(
-                  englishDate,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: textTheme.bodyMedium?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                if (arabicDate.isNotEmpty)
-                  Text(
-                    arabicDate,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: scheme.onSurfaceVariant,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-              ],
+          const SizedBox(height: 10),
+
+          // Main time
+          if (today)
+            Text(
+              _now().formatTime(MediaQuery.of(context).alwaysUse24HourFormat),
+              style: textTheme.displaySmall?.copyWith(
+                fontFamily: AppTheme.displayFont,
+                fontWeight: FontWeight.w600,
+                letterSpacing: -1.0,
+                height: 1.0,
+              ),
+            ),
+
+          const SizedBox(height: 10),
+
+          // Dates
+          Text(
+            englishDate,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: textTheme.bodyMedium?.copyWith(
+              color: scheme.onSurfaceVariant,
             ),
           ),
+
+          if (arabicDate.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                arabicDate,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+            ),
         ],
       ),
     );
   }
+
+  Future<void> _changeLocation(BuildContext context) async {
+    final pre = AppConf.loc.copyWith();
+    await showLocationProvidorScreen(context);
+
+    if (pre != AppConf.loc && mounted) {
+      setState(() {
+        PDS.clear();
+        _cityName = AppConf.loc.city;
+      });
+    }
+  }
+
+  //   Widget __locationDate(PrayerDay? p, DateTime now, bool today) {
+  //     final scheme = Theme.of(context).colorScheme;
+  //     final textTheme = Theme.of(context).textTheme;
+  //
+  //     // final hijri = HijriDateService.fromGregorian(now);
+  //
+  //     final englishDate =
+  //         '${_weekday(now.weekday)}, ${now.day} ${_month(now.month)} ${now.year}';
+  //
+  //     var arabicDate = '';
+  //     if (p != null) {
+  //       arabicDate = p.hijri.day.isEmpty || p.hijri.monthEn.isEmpty
+  //           ? ''
+  //           : '${_weekdayAr(now.weekday)}،  ${p.hijri.day} ${p.hijri.monthEn} ${p.hijri.year}';
+  //     }
+  //
+  //     return Padding(
+  //       padding: const EdgeInsets.only(top: 2, bottom: 18),
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Row(
+  //             children: [
+  //               Icon(Icons.location_on_rounded, size: 26, color: scheme.primary),
+  //               const SizedBox(width: 6),
+  //               Expanded(
+  //                 child: Text(
+  //                   _cityName,
+  //                   style: textTheme.headlineMedium?.copyWith(
+  //                     fontFamily: AppTheme.displayFont,
+  //                     fontWeight: FontWeight.w600,
+  //                     letterSpacing: -0.2,
+  //                   ),
+  //                   maxLines: 1,
+  //                   overflow: TextOverflow.ellipsis,
+  //                 ),
+  //               ),
+  //               IconButton(
+  //                 onPressed: () => _settings(context),
+  //                 tooltip: 'Settings',
+  //                 visualDensity: VisualDensity.compact,
+  //                 icon: const Icon(Icons.settings_rounded),
+  //               ),
+  //             ],
+  //           ),
+  //           const SizedBox(height: 6),
+  //
+  //           Padding(
+  //             padding: const EdgeInsets.only(left: 28.0),
+  //             child: Column(
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               spacing: 4,
+  //               children: [
+  //                 if (today)
+  //                   Text(
+  //                     // TimeOfDay.fromDateTime(_now()).toString(),
+  //                     // TimeOfDay.fromDateTime(_now()).format(context),
+  //                     _now().formatTime(
+  //                       MediaQuery.of(context).alwaysUse24HourFormat,
+  //                     ),
+  //                     maxLines: 1,
+  //                     overflow: TextOverflow.ellipsis,
+  //                     style: textTheme.titleLarge?.copyWith(
+  //                       color: scheme.onSurfaceVariant,
+  //                       fontWeight: FontWeight.w500,
+  //                     ),
+  //                   ),
+  //                 Text(
+  //                   englishDate,
+  //                   maxLines: 1,
+  //                   overflow: TextOverflow.ellipsis,
+  //                   style: textTheme.bodyMedium?.copyWith(
+  //                     color: scheme.onSurfaceVariant,
+  //                     fontWeight: FontWeight.w500,
+  //                   ),
+  //                 ),
+  //                 if (arabicDate.isNotEmpty)
+  //                   Text(
+  //                     arabicDate,
+  //                     maxLines: 1,
+  //                     overflow: TextOverflow.ellipsis,
+  //                     style: textTheme.bodyMedium?.copyWith(
+  //                       color: scheme.onSurfaceVariant,
+  //                       fontWeight: FontWeight.w500,
+  //                     ),
+  //                   ),
+  //               ],
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     );
+  //   }
 
   static const _weekdaysAr = [
     'Al-Ithnayn',
@@ -615,7 +735,7 @@ class _SalahTimesPageState extends State<SalahTimesPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 18),
-          _locationDate(prayer, t),
+          _locationDate(prayer, t, today),
           ...whenInited,
         ],
       ),

@@ -35,8 +35,9 @@ NextPrayerInfo? computeNextPrayer(
 
   final pl = en.length - 1;
 
-  final sec = now.second > 40 ? 1 : 0; // why was this added??
+  final sec = now.second > 54 ? 1 : 0;
   final nowMin = (now.hour * 60) + now.minute + sec;
+
   // final int extraMin = _currTimeSec ~/ 60;
   // final nowMin = (50 * 60) + 42 + extraMin;
   // _currTimeSec += cooloff;
@@ -46,7 +47,7 @@ NextPrayerInfo? computeNextPrayer(
 
     final min = curr.toMin;
 
-    if (min < nowMin) {
+    if (min <= nowMin) {
       // found isha
       if (i == pl) {
         var fajrPrayer = getNextDay()?.timings.en[0] ?? p.timings.en[0];

@@ -39,6 +39,35 @@ extension DateTimeExt on DateTime {
     );
   }
 
+  String formatTime(bool use24h) {
+    final local = toLocal();
+    // final second = local.second.toString().padLeft(2, '0');
+
+    // final day = ' ${_weekday(local.day)} • ${_weekdayAr(local.day)}';
+
+    if (use24h) {
+      final hour = local.hour.toString().padLeft(2, '0');
+      final minute = local.minute.toString().padLeft(2, '0');
+
+      // return '$hour:$minute:$second';
+      return '$hour:$minute';
+    } else {
+      int hour = local.hour;
+      final minute = local.minute.toString().padLeft(2, '0');
+
+      final isPm = hour >= 12;
+      final period = isPm ? 'PM' : 'AM';
+
+      hour = hour % 12;
+      if (hour == 0) hour = 12;
+
+      final hourStr = hour.toString().padLeft(2, '0');
+
+      // return '$hourStr:$minute:$second $period';
+      return '$hourStr:$minute $period';
+    }
+  }
+
   // int get totalMinutes {
   //   return ((hour * 60) + minute);
   // }
