@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:salah_times/models/prayer_day.dart';
 import 'package:salah_times/models/prayer_time.dart';
-import 'package:salah_times/pages/salah_times_page.dart';
 import 'package:salah_times/theme/app_theme.dart';
 import 'package:salah_times/utils/number.dart';
 import 'package:salah_times/widgets/prohibited_prayer_times.dart';
@@ -177,47 +176,6 @@ class PrayerHeroCard extends StatelessWidget {
                   // letterSpacing: 1.2,
                 ),
               ),
-              Spacer(),
-              InkWell(
-                customBorder: const CircleBorder(),
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    fullscreenDialog: false,
-                    builder: (context) {
-                      return AlertDialog(
-                        scrollable: true,
-                        constraints: maxContentWidth,
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 28,
-                        ),
-                        content: ProhibitedPrayerTimes(prayerWarning()),
-                        actions: [
-                          FilledButton.icon(
-                            label: Text('Close'),
-                            icon: Icon(Icons.close),
-                            onPressed: () => Navigator.of(context).pop(),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(1.5),
-                  decoration: BoxDecoration(
-                    color: noPrayerWarn ? scheme.error : scheme.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.question_mark_rounded,
-                    size: 15,
-                    color: noPrayerWarn ? scheme.onError : scheme.onPrimary,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 6),
             ],
           ),
           const SizedBox(height: 14),
