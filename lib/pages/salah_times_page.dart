@@ -403,7 +403,7 @@ class _SalahTimesPageState extends State<SalahTimesPage>
 
     final arabicDate =
         p != null && p.hijri.day.isNotEmpty && p.hijri.monthEn.isNotEmpty
-        ? '${_weekdayAr(now.weekday)}، ${p.hijri.day} '
+        ? '${_weekdayAr(now.weekday)}, ${p.hijri.day} '
               '${p.hijri.monthEn} ${p.hijri.year}'
         : '';
 
@@ -456,16 +456,15 @@ class _SalahTimesPageState extends State<SalahTimesPage>
           const SizedBox(height: 10),
 
           // Main time
-          if (today)
-            Text(
-              _now().formatTime(MediaQuery.of(context).alwaysUse24HourFormat),
-              style: textTheme.displaySmall?.copyWith(
-                fontFamily: AppTheme.displayFont,
-                fontWeight: FontWeight.w600,
-                letterSpacing: -1.0,
-                height: 1.0,
-              ),
+          Text(
+            _now().formatTime(MediaQuery.of(context).alwaysUse24HourFormat),
+            style: textTheme.displaySmall?.copyWith(
+              fontFamily: AppTheme.displayFont,
+              fontWeight: FontWeight.w600,
+              letterSpacing: -1.0,
+              height: 1.0,
             ),
+          ),
 
           const SizedBox(height: 10),
 
